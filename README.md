@@ -1,105 +1,164 @@
-# ai-data-quality-accelerator
-Project Description:
+# AI Data Quality & Governance Accelerator
 
-Create an automated data readiness assessment tool that uses AI to identify quality issues, governance gaps, and AI-readiness blockers. This becomes a powerful upsell tool: "We found 47 issues—want us to fix them?" It also reinforces CGI's "AI starts with data" positioning. 
+> CGI proof-of-concept — *AI starts with data.*
 
-Business Objectives:
+An automated data readiness assessment tool that uses AI to identify quality issues,
+governance gaps, and AI-readiness blockers across both **structured** and **unstructured** data.
 
-Primary: Generate follow-on data quality and modernization projects from existing clients 
+---
 
-Secondary: Position CGI as data governance thought leaders 
+## Architecture
 
+```
+ai-data-quality-accelerator/
+├── app/                    # Streamlit frontend
+│   ├── main.py             # Entry point + navigation
+│   ├── pages/
+│   │   ├── 01_structured_assessment.py
+│   │   ├── 02_unstructured_assessment.py
+│   │   └── 03_report.py
+│   └── components/
+│       ├── score_card.py   # Reusable score display widgets
+│       └── findings_table.py
+│
+├── engine/                 # Assessment engine (Phase 1: pandas/LLM, Phase 2: Snowflake Cortex)
+│   ├── __init__.py
+│   ├── structured/
+│   │   ├── __init__.py
+│   │   ├── completeness.py     # Null / missing value checks
+│   │   ├── validity.py         # Format, range, type checks
+│   │   ├── consistency.py      # Cross-column / referential checks
+│   │   ├── pii_detector.py     # PII / HIPAA field flagging
+│   │   ├── governance.py       # Ownership, lineage, access gap checks
+│   │   └── ai_readiness.py     # Feature engineering readiness, label quality
+│   │
+│   ├── unstructured/
+│   │   ├── __init__.py
+│   │   ├── pdf_extractor.py    # Text extraction from PDFs
+│   │   ├── policy_checker.py   # Clause / keyword detection
+│   │   ├── compliance_scanner.py  # HIPAA / GDPR / FedRAMP rule mapping
+│   │   └── llm_analyzer.py     # LLM-powered gap analysis (Phase 1: Claude API, Phase 2: Cortex)
+│   │
+│   ├── scoring/
+│   │   ├── __init__.py
+│   │   ├── dimensions.py       # Dimension definitions & weights
+│   │   └── scorer.py           # Aggregate scoring → AI-readiness index
+│   │
+│   └── reporting/
+│       ├── __init__.py
+│       ├── executive_summary.py
+│       └── findings_report.py
+│
+├── data/
+│   ├── sample/
+│   │   ├── structured/         # Public government sample datasets
+│   │   └── unstructured/       # Sample compliance / policy PDFs
+│   └── schemas/
+│       └── assessment_schema.json
+│
+├── config/
+│   ├── rules/
+│   │   ├── structured_rules.yaml   # Configurable quality rules
+│   │   └── compliance_rules.yaml   # HIPAA / GDPR / FedRAMP checklists
+│   └── scoring_weights.yaml        # Dimension weights (tunable per engagement)
+│
+├── tests/
+│   ├── test_structured.py
+│   ├── test_unstructured.py
+│   └── test_scoring.py
+│
+├── snowflake/              # Phase 2 migration artifacts
+│   ├── setup.sql           # Snowflake objects / Cortex setup
+│   └── MIGRATION.md
+│
+├── requirements.txt
+├── requirements-dev.txt
+└── README.md
+```
 
-Key Focus Areas: 
+---
 
-1.) Industries: State & Local Government (primary), but applicable to all verticals 
+## Quickstart (Phase 1 — Local)
 
-2.) Regulatory: Include HIPAA, GDPR, data sovereignty checks 
+```bash
+# 1. Clone and set up environment
+git clone <repo>
+cd ai-data-quality-accelerator
+python -m venv .venv && source .venv/bin/activate
 
-Buzzwords: Data Governance, Master Data Management, AI, Agentic AI (AI agents for data stewardship), Cloud-Native 
+# 2. Install dependencies
+pip install -r requirements.txt
 
-Alliance: Snowflake - Built on Snowflake platform
+# 3. Set environment variables
+cp .env.example .env
+# Edit .env — add ANTHROPIC_API_KEY for LLM-powered PDF analysis
 
-Definition of Done 
+# 4. Run the app
+streamlit run app/main.py
+```
 
-Must Have: 
+---
 
-Assessment framework/methodology (data quality dimensions, scoring rubric) 
+## Assessment Tracks
 
-Working prototype: Simple tool that analyzes a sample dataset and generates a report 
+### Structured data
+Analyzes CSV / database tables against five quality dimensions:
 
-AI-Readiness Score output (1-page executive summary) 
+| Dimension       | What we check                                      |
+|-----------------|----------------------------------------------------|
+| Completeness    | Null rates, missing required fields                |
+| Validity        | Type correctness, format patterns, range bounds    |
+| Consistency     | Cross-column rules, referential integrity          |
+| Governance      | PII presence, data ownership gaps, lineage         |
+| AI Readiness    | Label quality, class balance, feature completeness |
 
-Detailed findings report template (data quality issues, governance gaps, recommendations) 
+**Sample dataset:** NYC 311 Service Requests (open government data, ~3M rows)
 
-Demo video (10-12 minutes showing tool in action) 
+### Unstructured (PDF)
+Analyzes policy and compliance documents against regulatory checklists:
 
-Master Data Management integration guide (how MDM fits into AI readiness) 
+| Check                  | Standard         |
+|------------------------|------------------|
+| Data retention clause  | HIPAA / GDPR     |
+| Consent language       | GDPR Art. 7      |
+| Breach notification    | HIPAA §164.412   |
+| Data residency         | FedRAMP / State  |
+| Access control policy  | NIST 800-53      |
+| Data owner defined     | Governance       |
 
-Regulatory compliance module (HIPAA/GDPR/FedRAMP checkers) 
+---
 
-Accelerator framework document 
+## Scoring Model
 
-Integration plan for Project Nova website 
+Each dimension is scored 0–100. The **AI-Readiness Index** is a weighted composite:
 
-Nice to Have: 
+```
+AI-Readiness Index = Σ(dimension_score × weight)
 
-Agentic AI data steward (AI agent that suggests fixes) 
+Default weights:
+  Completeness   20%
+  Validity       20%
+  Consistency    15%
+  Governance     25%   ← weighted higher for enterprise clients
+  AI Readiness   20%
+```
 
-Automated data lineage visualization 
+Scores map to a traffic-light maturity tier:
+- 🔴 **0–40**: High risk — significant remediation needed
+- 🟡 **41–70**: Moderate — targeted fixes recommended
+- 🟢 **71–100**: AI-ready — minor improvements only
 
-Benchmarking (compare to industry standards) 
+---
 
-Key Deliverables 
+## Phase 2 — Snowflake / Cortex Migration
 
-Deliverable 
+The engine interface is designed so the data and compute layer can be swapped without changing the UI or scoring logic:
 
-Format 
+| Phase 1 (local)          | Phase 2 (Snowflake)               |
+|--------------------------|-----------------------------------|
+| `pandas` DataFrames      | Snowpark DataFrames               |
+| Local CSV / PDF files    | Snowflake tables + stage          |
+| Claude API (LLM gaps)    | Cortex `COMPLETE()` / `CLASSIFY()`|
+| Local Streamlit           | Streamlit in Snowflake            |
 
-Purpose 
-
-Delivery 1: Assessment Methodology 
-
-Delivery 1 Format: PDF (15-20 pages) 
-
-Delivery 1 Purpose: Internal framework 
-
-Delivery 2: Prototype Tool 
-
-Delivery 2 Format: Snowflake based backend and Streamlit Frontend UI.  Cortex leveraged for AI capabilities
-
-Delivery 2 Purpose: Working demonstration 
-
-Delivery 3: Report Templates 
-
-Delivery 3 Format: Word/Excel 
-
-Delivery 3 Purpose: Client deliverables 
-
-Delivery 4: Demo Video 
-
-Delivery 4 Format: 10-12 minute video 
-
-Delivery 4 Purpose: Sales enablement 
-
-Delivery 5: MDM Integration Guide 
-
-Delivery 5 Format: PDF 
-
-Delivery 5 Purpose: Thought leadership 
-
-Delivery 6: Accelerator Framework Doc 
-
-Delivery 6 Formate: Markdown/PDF 
-
-Delivery 6 Purpose: Reusable components 
-
-Success Criteria 
-
-Tool successfully analyzes real datasets (even if simplified) 
-
-Output report is executive-friendly and actionable 
-
-Clear connection between data issues and AI readiness 
-
-Sales team can position this as a "no-brainer" first step for AI initiatives 
+See `snowflake/MIGRATION.md` for the step-by-step migration guide.

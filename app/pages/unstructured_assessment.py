@@ -16,6 +16,7 @@ from engine.unstructured.llm_analyzer import analyze as llm_analyze
 from engine.scoring.scorer import build_result
 from app.components.score_card import render_score_card
 from app.components.findings_table import render_findings_table
+from app.theme import page_header
 
 _SAMPLE_DIR = Path(__file__).parents[2] / "data" / "sample" / "unstructured"
 
@@ -23,7 +24,7 @@ _AVAILABLE_STANDARDS = ["HIPAA", "GDPR", "FedRAMP", "GOVERNANCE"]
 
 
 def render():
-    st.title("📄 Unstructured Document Assessment")
+    page_header("Unstructured Document Assessment", "Scan compliance and policy documents against HIPAA, GDPR, FedRAMP, and governance standards.")
     st.markdown(
         "Upload one or more policy or compliance documents (PDF) to scan for "
         "regulatory gaps across HIPAA, GDPR, FedRAMP, and data governance best practices."

@@ -1,0 +1,90 @@
+/*
+ * eds-design-tokens.css
+ * CGI Experience Design System — CSS custom properties
+ * Source: _variables_brand.scss from @cgi/sentry-angular-components-lib v17.0.0
+ * Applied via st.markdown injection in Streamlit (token-only fallback mode)
+ */
+
+/* ── Google Fonts: Source Sans Pro ───────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+
+:root {
+  /* ── Brand colors ─────────────────────────────────────────────────────── */
+  --eds-color-primary:           #3A2679;   /* Purple 700 */
+  --eds-color-primary-hover:     #5236AB;   /* Purple 600 */
+  --eds-color-primary-pressed:   #200A58;   /* Purple 900 */
+  --eds-color-primary-light:     #AFA3D8;   /* Purple 300 */
+  --eds-color-primary-bg:        #E6E3F3;   /* Purple 100 — headstone, nav hover */
+  --eds-color-primary-lightest:  #F2F1F9;   /* Purple 50 */
+
+  --eds-color-secondary:         #A21127;   /* Red 700 */
+  --eds-color-secondary-hover:   #E31937;   /* Red 500 */
+
+  /* ── Semantic colors ──────────────────────────────────────────────────── */
+  --eds-color-error:    #B00020;   /* sec-red 500 */
+  --eds-color-success:  #1AB977;   /* sec-green 500 */
+  --eds-color-warning:  #F1A425;   /* sec-pumpkin 500 */
+  --eds-color-info:     #3A2679;   /* use primary for info */
+
+  --eds-color-error-bg:    #F7E6E9;
+  --eds-color-success-bg:  #E8F8F1;
+  --eds-color-warning-bg:  #FEF6E9;
+
+  /* ── Text ─────────────────────────────────────────────────────────────── */
+  --eds-color-text-primary:    rgba(0, 0, 0, 0.87);
+  --eds-color-text-secondary:  rgba(0, 0, 0, 0.60);
+  --eds-color-text-disabled:   rgba(21, 21, 21, 0.45);
+
+  /* ── Surfaces ─────────────────────────────────────────────────────────── */
+  --eds-color-background: #FAFAFA;
+  --eds-color-surface:    #FFFFFF;
+  --eds-color-divider:    rgba(0, 0, 0, 0.12);
+
+  /* ── Gradients ────────────────────────────────────────────────────────── */
+  --eds-gradient-primary:  linear-gradient(90deg, #E31937 0%, #A82465 60%, #5236AB 100%);
+  --eds-gradient-counter:  linear-gradient(90deg, #5236AB 0%, #A82465 40%, #E31937 100%);
+  --eds-gradient-vertical: linear-gradient(180deg, #E31937 0%, #A82465 40%, #5236AB 100%);
+
+  /* ── Typography ───────────────────────────────────────────────────────── */
+  --eds-font-family:        'Source Sans Pro', Helvetica, 'Helvetica Neue', Arial, sans-serif;
+  --eds-font-size-h1:       32px;
+  --eds-font-size-h2:       24px;
+  --eds-font-size-h3:       20px;
+  --eds-font-size-h4:       16px;
+  --eds-font-size-body:     14px;
+  --eds-font-size-caption:  12px;
+  --eds-font-weight-regular:   400;
+  --eds-font-weight-semibold:  600;
+  --eds-font-weight-bold:      700;
+
+  /* ── Spacing ──────────────────────────────────────────────────────────── */
+  --eds-spacing-xs:   4px;
+  --eds-spacing-sm:   8px;
+  --eds-spacing-md:   16px;
+  --eds-spacing-lg:   24px;
+  --eds-spacing-xl:   32px;
+  --eds-spacing-xxl:  48px;
+
+  /* ── Elevation ────────────────────────────────────────────────────────── */
+  --eds-elevation-1: 0px 2px 1px -1px rgba(0,0,0,0.2),
+                     0px 1px 1px 0px rgba(0,0,0,0.14),
+                     0px 1px 3px 0px rgba(0,0,0,0.12);
+  --eds-elevation-2: 0px 3px 1px -2px rgba(0,0,0,0.2),
+                     0px 2px 2px 0px rgba(0,0,0,0.14),
+                     0px 1px 5px 0px rgba(0,0,0,0.12);
+  --eds-elevation-4: 0px 2px 4px -1px rgba(0,0,0,0.2),
+                     0px 4px 5px 0px rgba(0,0,0,0.14),
+                     0px 1px 10px 0px rgba(0,0,0,0.12);
+
+  /* ── Border radius ────────────────────────────────────────────────────── */
+  --eds-radius-none:  0px;
+  --eds-radius-sm:    2px;
+  --eds-radius-md:    4px;
+  --eds-radius-lg:    8px;
+  --eds-radius-full:  50%;
+
+  /* ── Layout ───────────────────────────────────────────────────────────── */
+  --eds-toolbar-height:  60px;
+  --eds-toolbar-shadow:  0px 2px 6px 2px rgba(0,0,0,0.15);
+  --eds-headstone-bg:    #E6E3F3;
+}

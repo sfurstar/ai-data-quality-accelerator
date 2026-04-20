@@ -13,10 +13,11 @@ from engine.structured import completeness, validity, pii_detector, ai_readiness
 from engine.scoring.scorer import build_result
 from app.components.score_card import render_score_card
 from app.components.findings_table import render_findings_table
+from app.theme import page_header
 
 
 def render():
-    st.title("📋 Structured Data Assessment")
+    page_header("Structured Data Assessment", "Upload a dataset and assess it across five quality dimensions.")
     st.markdown(
         "Upload a CSV file to assess data quality, governance gaps, and AI readiness. "
         "Use the sample NYC 311 dataset below if you don't have one ready."

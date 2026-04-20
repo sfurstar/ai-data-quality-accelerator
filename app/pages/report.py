@@ -14,7 +14,7 @@ from engine import AssessmentResult, Severity
 
 
 def render():
-    st.title("📈 Assessment Report")
+    page_header("Assessment Report", "Combined findings across all assessed sources.")
 
     structured: AssessmentResult | None = st.session_state.get("structured_result")
     unstructured_list: list[tuple[str, AssessmentResult]] = st.session_state.get("unstructured_results", [])

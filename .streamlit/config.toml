@@ -1,0 +1,18 @@
+[theme]
+# CGI Experience Design System — Brand Theme
+# Source: _variables_brand.scss, @cgi/sentry-angular-components-lib v17.0.0
+
+# Primary: CGI Purple 700
+primaryColor = "#3A2679"
+
+# Page background: Material Design convention (#FAFAFA)
+backgroundColor = "#FAFAFA"
+
+# Surface/card background: CGI White
+secondaryBackgroundColor = "#FFFFFF"
+
+# Primary text: Material default (rgba approximation)
+textColor = "#212121"
+
+# Font: Source Sans Pro (loaded via custom CSS in app)
+font = "sans serif"
