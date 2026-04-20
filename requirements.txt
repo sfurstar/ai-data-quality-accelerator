@@ -8,7 +8,7 @@ pdfplumber>=0.11.0
 pypdf>=4.2.0
 
 # LLM (Phase 1: Claude API for unstructured analysis)
-anthropic>=0.28.0
+# anthropic>=0.28.0  # Phase 2: uncomment when adding Snowflake Cortex fallback
 
 # Data quality utilities
 great-expectations>=0.18.0   # optional — used for advanced rule sets

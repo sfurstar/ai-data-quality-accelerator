@@ -60,19 +60,13 @@ def render():
         return
 
     # ── Standards selection ──────────────────────────────────────────────────
-    col_std, col_llm = st.columns([3, 1])
-    with col_std:
-        selected_standards = st.multiselect(
-            "Compliance standards to check",
-            options=_AVAILABLE_STANDARDS,
-            default=_AVAILABLE_STANDARDS,
-        )
-    with col_llm:
-        use_llm = st.checkbox(
-            "AI gap analysis (Claude)",
-            value=True,
-            help="Use Claude API to identify gaps beyond rule-based checks. Requires ANTHROPIC_API_KEY.",
-        )
+    selected_standards = st.multiselect(
+        "Compliance standards to check",
+        options=_AVAILABLE_STANDARDS,
+        default=_AVAILABLE_STANDARDS,
+    )
+    use_llm = False  # Phase 2: enable when Snowflake Cortex is configured
+    st.caption("AI-powered gap analysis (Cortex COMPLETE) will be enabled in Phase 2 — Snowflake integration.")
 
     # ── Run ──────────────────────────────────────────────────────────────────
     if st.button("▶ Run Assessment", type="primary", use_container_width=True):
