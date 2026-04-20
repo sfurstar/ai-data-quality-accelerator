@@ -25,8 +25,19 @@ def _load_rules() -> dict:
 
 
 def _is_likely_label(col: str) -> bool:
-    label_hints = ["status", "label", "category", "class", "outcome", "result", "flag", "type"]
-    return any(hint in col.lower() for hint in label_hints)
+    """
+    Only flag columns whose name IS one of the hint words, or ends with _label/_class/_outcome.
+    Avoids false positives on complaint_type, created_date, status (too generic for 311 data).
+    """
+    col_lower = col.lower()
+    # Exact match hints — these are almost certainly label columns
+    exact_hints = {"label", "class", "outcome", "target", "flag", "is_fraud",
+                   "is_anomaly", "prediction", "churn", "approved", "rejected"}
+    if col_lower in exact_hints:
+        return True
+    # Suffix hints — e.g. loan_status, case_status (but NOT complaint_type, created_date)
+    suffix_hints = ["_label", "_class", "_outcome", "_target", "_flag", "_status"]
+    return any(col_lower.endswith(s) for s in suffix_hints)
 
 
 def run(df: pd.DataFrame) -> list[Finding]:
@@ -122,7 +133,11 @@ def run(df: pd.DataFrame) -> list[Finding]:
             ))
 
     # ── High cardinality categoricals ────────────────────────────────────────
+    # Skip columns that are obviously IDs or timestamps by name
+    _skip_card_hints = ["date", "time", "timestamp", "id", "key", "uuid", "created", "updated"]
     for col in df.select_dtypes(include="object").columns:
+        if any(h in col.lower() for h in _skip_card_hints):
+            continue
         n_unique = df[col].nunique()
         unique_pct = n_unique / total_rows if total_rows > 0 else 0
         if unique_pct > rules["high_cardinality_pct"] and n_unique > 50:

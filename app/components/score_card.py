@@ -38,21 +38,20 @@ def render_score_card(result: AssessmentResult):
 
     info_count = sum(1 for f in result.all_findings if f.severity == Severity.INFO)
 
-    # ── EDS headstone — key metrics ──────────────────────────────────────────
-    headstone([
-        {"label": "AI-Readiness Index", "value": f"{result.ai_readiness_index:.0f} / 100",
-         "footer": result.maturity_tier},
-        {"label": "Critical findings",  "value": str(result.critical_count),
-         "footer": "Requires immediate action"},
-        {"label": "Warnings",           "value": str(result.warning_count),
-         "footer": "Recommended fixes"},
-        {"label": "Informational",      "value": str(info_count),
-         "footer": "Low priority"},
-        {"label": "Source",             "value": result.source_name[:28],
-         "footer": result.track.title()},
-    ])
+    # ── Key metrics row — native st.metric (no HTML rendering issues) ────────
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.metric("AI-Readiness Index", f"{result.ai_readiness_index:.0f} / 100")
+    with col2:
+        st.metric("Maturity Tier", result.maturity_tier)
+    with col3:
+        st.metric("Critical", result.critical_count)
+    with col4:
+        st.metric("Warnings", result.warning_count)
+    with col5:
+        st.metric("Informational", info_count)
 
-    # Maturity badge
+    # Maturity badge + summary
     st.markdown(maturity_badge(result.maturity_tier, result.ai_readiness_index),
                 unsafe_allow_html=True)
     st.caption(result.summary)

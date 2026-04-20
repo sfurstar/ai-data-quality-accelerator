@@ -327,33 +327,15 @@ hr {
 </style>
 """
 
-_SIDEBAR_LOGO = f"""
-<div style="
-    padding: 16px 16px 8px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid rgba(0,0,0,0.12);
-    margin-bottom: 8px;
-">
-    {CGI_LOGO_SVG}
-    <div>
-        <div style="
-            font-family: 'Source Sans Pro', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            color: #991F3D;
-            line-height: 1.2;
-        ">DQ Accelerator</div>
-        <div style="
-            font-family: 'Source Sans Pro', sans-serif;
-            font-size: 11px;
-            font-weight: 400;
-            color: rgba(0,0,0,0.60);
-        ">AI starts with data</div>
-    </div>
-</div>
-"""
+_SIDEBAR_LOGO = (
+    '<div style="padding:16px 16px 8px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(0,0,0,0.12);margin-bottom:8px;">' +
+    '<div style="width:32px;height:32px;background:#E31937;border-radius:50%;display:flex;align-items:center;justify-content:center;">' +
+    '<span style="color:white;font-weight:700;font-size:11px;font-family:sans-serif;">CGI</span></div>' +
+    '<div>' +
+    '<div style="font-family:Source Sans Pro,sans-serif;font-size:13px;font-weight:600;color:#991F3D;line-height:1.2;">DQ Accelerator</div>' +
+    '<div style="font-family:Source Sans Pro,sans-serif;font-size:11px;font-weight:400;color:rgba(0,0,0,0.60);">AI starts with data</div>' +
+    '</div></div>'
+)
 
 
 def apply():
@@ -365,17 +347,11 @@ def apply():
 
 
 def sidebar_logo():
-    st.markdown("""
-<div style="padding:16px 16px 8px 16px; border-bottom:1px solid rgba(0,0,0,0.12); margin-bottom:8px; display:flex; align-items:center; gap:10px;">
-    <div style="width:32px; height:32px; background:#E31937; border-radius:50%; display:flex; align-items:center; justify-content:center;">
-        <span style="color:white; font-weight:700; font-size:11px; font-family:sans-serif;">CGI</span>
-    </div>
-    <div>
-        <div style="font-family:'Source Sans Pro',sans-serif; font-size:13px; font-weight:600; color:#991F3D; line-height:1.2;">DQ Accelerator</div>
-        <div style="font-family:'Source Sans Pro',sans-serif; font-size:11px; font-weight:400; color:rgba(0,0,0,0.60);">AI starts with data</div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+    """
+    Render the CGI logo + app name in the sidebar.
+    Call inside a `with st.sidebar:` block.
+    """
+    st.markdown(_SIDEBAR_LOGO, unsafe_allow_html=True)
 
 
 def page_header(title: str, subtitle: str = ""):
@@ -418,8 +394,10 @@ def headstone(items: list[dict]):
         """
 
     st.markdown(
-        f"""<div class="eds-headstone">
-            <div style="display:flex;flex-wrap:wrap;gap:48px;font-family:var(--eds-font-family);">
+        f"""<div style="background-color:#E6E3F3;border-radius:4px;padding:16px;
+                        box-shadow:0px 1px 2px 0px rgba(21,21,21,0.25);margin-bottom:16px;">
+            <div style="display:flex;flex-wrap:wrap;gap:48px;
+                        font-family:'Source Sans Pro',Helvetica,Arial,sans-serif;">
                 {items_html}
             </div>
         </div>""",
