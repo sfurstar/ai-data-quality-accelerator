@@ -1,0 +1,106 @@
+# Configurable structured data quality rules
+# Rules are applied per column type; override per dataset via assessment config
+
+completeness:
+  # Columns in this list are required — any null = critical finding
+  required_fields_hint:
+    - id
+    - created_date
+    - status
+    - agency
+  # Null rate thresholds
+  thresholds:
+    critical: 0.20    # >20% nulls → critical finding
+    warning: 0.05     # >5% nulls → warning finding
+    info: 0.01        # >1% nulls → informational note
+
+validity:
+  date_formats:
+    - "%Y-%m-%d"
+    - "%m/%d/%Y"
+    - "%Y-%m-%dT%H:%M:%S"
+    - "%Y-%m-%d %H:%M:%S"
+
+  # Common government dataset column patterns
+  column_patterns:
+    zip_code: "^\\d{5}(-\\d{4})?$"
+    phone: "^[\\+]?[1-9][0-9\\s\\-\\(\\)]{7,15}$"
+    email: "^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$"
+    ssn: "^\\d{3}-\\d{2}-\\d{4}$"
+    ein: "^\\d{2}-\\d{7}$"
+
+  # Value range checks (applied to numeric columns matching name patterns)
+  range_checks:
+    - column_pattern: ".*_pct$"
+      min: 0
+      max: 100
+    - column_pattern: ".*_score$"
+      min: 0
+      max: 100
+
+consistency:
+  # Cross-column rules expressed as pandas query strings
+  # {col} references become column names at runtime
+  rules:
+    - id: CST-001
+      description: "Closed date must be after or equal to open/created date"
+      query: "closed_date >= created_date"
+      severity: critical
+      applicable_columns: [closed_date, created_date]
+
+    - id: CST-002
+      description: "Resolution description required when status is Closed"
+      query: "~(status == 'Closed' and resolution_description.isna())"
+      severity: warning
+      applicable_columns: [status, resolution_description]
+
+governance:
+  # Column name patterns that suggest PII — triggers HIPAA/GDPR flag
+  pii_column_patterns:
+    - ssn
+    - social_security
+    - date_of_birth
+    - dob
+    - ".*_name$"      # first_name, last_name, full_name
+    - email
+    - phone
+    - address
+    - zip
+    - lat             # geolocation
+    - lon
+    - longitude
+    - latitude
+    - ip_address
+    - account_number
+    - credit_card
+    - passport
+    - license_number
+    - medical_record
+
+  # Governance metadata checks (look for these as dataset attributes)
+  required_metadata:
+    - data_owner
+    - data_steward
+    - classification       # Public / Internal / Confidential / Restricted
+    - retention_policy
+    - last_reviewed_date
+    - source_system
+
+ai_readiness:
+  # Class imbalance thresholds for label columns
+  label_imbalance:
+    warning_ratio: 0.10   # Minority class < 10% of total → warning
+    critical_ratio: 0.02  # Minority class < 2% → critical
+
+  # Minimum rows for meaningful ML
+  min_rows:
+    warning: 1000
+    critical: 100
+
+  # High-cardinality categorical column threshold
+  high_cardinality_pct: 0.50  # unique values > 50% of rows = potential leakage risk
+
+  # Duplicate row threshold
+  duplicate_row_pct:
+    warning: 0.02   # >2% duplicate rows
+    critical: 0.10  # >10% duplicate rows

@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment / secrets — NEVER commit
+.env
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Data — sample CSVs and PDFs are generated/downloaded, not committed
+data/sample/structured/*.csv
+data/sample/unstructured/*.pdf
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Outputs / exports
+*.xlsx
+*.docx
+reports/
+
+# Jupyter (if used for exploration)
+.ipynb_checkpoints/
+*.ipynb

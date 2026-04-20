@@ -1,0 +1,187 @@
+# Compliance checklist rules for unstructured (PDF) document analysis
+# Each rule maps to a regulatory clause and a set of keyword signals
+
+standards:
+  HIPAA:
+    full_name: "Health Insurance Portability and Accountability Act"
+    rules:
+      - id: HIPAA-001
+        clause: "§164.412 — Breach notification"
+        description: "Policy must address breach notification within 60 days"
+        severity: critical
+        required_keywords:
+          - [breach, notification, "60 days"]
+          - [breach, notification, "60-day"]
+          - [security incident, notification]
+        missing_message: "No breach notification timeline found. HIPAA §164.412 requires notification within 60 days of discovery."
+
+      - id: HIPAA-002
+        clause: "§164.308 — Administrative safeguards"
+        description: "Policy must define workforce training on PHI handling"
+        severity: critical
+        required_keywords:
+          - [workforce, training, phi]
+          - [workforce, training, "protected health information"]
+          - [employee, training, hipaa]
+        missing_message: "No workforce training requirement found for PHI handling."
+
+      - id: HIPAA-003
+        clause: "§164.514 — De-identification"
+        description: "Policy should address PHI de-identification methods"
+        severity: warning
+        required_keywords:
+          - [de-identification, phi]
+          - [deidentification]
+          - [anonymization, health]
+        missing_message: "No PHI de-identification process documented."
+
+      - id: HIPAA-004
+        clause: "§164.310 — Physical safeguards"
+        description: "Policy must address physical access controls"
+        severity: warning
+        required_keywords:
+          - [physical access, control]
+          - [facility access]
+          - [workstation, security]
+        missing_message: "Physical safeguard controls not explicitly documented."
+
+  GDPR:
+    full_name: "General Data Protection Regulation (EU) 2016/679"
+    rules:
+      - id: GDPR-001
+        clause: "Article 7 — Consent"
+        description: "Policy must describe lawful basis for processing and consent mechanism"
+        severity: critical
+        required_keywords:
+          - [consent, personal data]
+          - [lawful basis, processing]
+          - [data subject, consent]
+        missing_message: "No consent or lawful basis for processing language found. GDPR Art. 7 required."
+
+      - id: GDPR-002
+        clause: "Article 17 — Right to erasure"
+        description: "Policy must address data subject right to deletion"
+        severity: critical
+        required_keywords:
+          - [right to erasure]
+          - [right to be forgotten]
+          - [deletion request, personal data]
+          - [data subject, delete]
+        missing_message: "Right to erasure / deletion not addressed. GDPR Art. 17 required."
+
+      - id: GDPR-003
+        clause: "Article 13 — Transparency"
+        description: "Policy must state data retention periods"
+        severity: warning
+        required_keywords:
+          - [retention period]
+          - [data retention]
+          - [storage limitation]
+          - [kept for, years]
+          - [retained for, months]
+        missing_message: "No data retention period specified. GDPR Art. 13(2)(a) requires retention period disclosure."
+
+      - id: GDPR-004
+        clause: "Article 37 — Data Protection Officer"
+        description: "Policy should reference DPO or equivalent role"
+        severity: info
+        required_keywords:
+          - [data protection officer]
+          - [dpo]
+          - [privacy officer]
+        missing_message: "No Data Protection Officer (DPO) role referenced."
+
+      - id: GDPR-005
+        clause: "Article 44 — Data transfers"
+        description: "Policy must address cross-border data transfer restrictions"
+        severity: warning
+        required_keywords:
+          - [data transfer, third country]
+          - [cross-border, transfer]
+          - [international transfer]
+          - [data residency]
+          - [data sovereignty]
+        missing_message: "No cross-border data transfer restrictions documented."
+
+  FedRAMP:
+    full_name: "Federal Risk and Authorization Management Program"
+    rules:
+      - id: FEDRAMP-001
+        clause: "AC-2 — Account Management"
+        description: "Policy must define user account lifecycle management"
+        severity: critical
+        required_keywords:
+          - [account management]
+          - [user provisioning]
+          - [access review]
+          - [account termination]
+        missing_message: "No user account lifecycle management found. FedRAMP AC-2 required."
+
+      - id: FEDRAMP-002
+        clause: "AU-2 — Audit Events"
+        description: "Policy must define what events are audited and logged"
+        severity: critical
+        required_keywords:
+          - [audit log]
+          - [audit trail]
+          - [event logging]
+          - [access log]
+        missing_message: "No audit logging requirement documented. FedRAMP AU-2 required."
+
+      - id: FEDRAMP-003
+        clause: "SI-2 — Flaw Remediation"
+        description: "Policy must address patching and vulnerability remediation timelines"
+        severity: warning
+        required_keywords:
+          - [patch management]
+          - [vulnerability remediation]
+          - [security patch]
+          - [flaw remediation]
+        missing_message: "No patch/vulnerability remediation process documented."
+
+      - id: FEDRAMP-004
+        clause: "SC-28 — Data at Rest Protection"
+        description: "Policy must require encryption of data at rest"
+        severity: critical
+        required_keywords:
+          - [encryption, at rest]
+          - [encrypt, stored data]
+          - [data at rest, encrypt]
+          - [AES-256]
+        missing_message: "Encryption of data at rest not addressed. FedRAMP SC-28 required."
+
+  GOVERNANCE:
+    full_name: "Data Governance Best Practices"
+    rules:
+      - id: GOV-001
+        clause: "Data Ownership"
+        description: "Policy must define data ownership roles and responsibilities"
+        severity: critical
+        required_keywords:
+          - [data owner]
+          - [data steward]
+          - [data custodian]
+          - [responsible for data]
+        missing_message: "No data ownership roles defined."
+
+      - id: GOV-002
+        clause: "Data Classification"
+        description: "Policy must define data classification scheme"
+        severity: warning
+        required_keywords:
+          - [data classification]
+          - [confidential, internal, public]
+          - [sensitivity level]
+          - [classified data]
+        missing_message: "No data classification scheme documented."
+
+      - id: GOV-003
+        clause: "Data Lineage"
+        description: "Policy should address data lineage / provenance tracking"
+        severity: info
+        required_keywords:
+          - [data lineage]
+          - [data provenance]
+          - [data origin]
+          - [source system]
+        missing_message: "Data lineage / provenance not addressed."

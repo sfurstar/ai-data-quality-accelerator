@@ -1,0 +1,50 @@
+# Scoring dimension weights — must sum to 1.0
+# Tune per engagement (e.g. raise governance weight for regulated industries)
+
+dimensions:
+  completeness:
+    weight: 0.20
+    display_name: "Completeness"
+    description: "Null rates, missing required fields"
+
+  validity:
+    weight: 0.20
+    display_name: "Validity"
+    description: "Type correctness, format patterns, range bounds"
+
+  consistency:
+    weight: 0.15
+    display_name: "Consistency"
+    description: "Cross-column rules, referential integrity"
+
+  governance:
+    weight: 0.25
+    display_name: "Governance & Compliance"
+    description: "PII handling, data ownership, lineage, access controls"
+
+  ai_readiness:
+    weight: 0.20
+    display_name: "AI Readiness"
+    description: "Label quality, class balance, feature completeness"
+
+maturity_tiers:
+  high_risk:
+    min: 0
+    max: 40
+    label: "High Risk"
+    color: "#E24B4A"
+    description: "Significant remediation required before AI use"
+
+  moderate:
+    min: 41
+    max: 70
+    label: "Moderate"
+    color: "#EF9F27"
+    description: "Targeted fixes recommended; limited AI use possible"
+
+  ai_ready:
+    min: 71
+    max: 100
+    label: "AI Ready"
+    color: "#639922"
+    description: "Minor improvements only; suitable for AI initiatives"
