@@ -141,20 +141,16 @@ def _check_objects():
     session = get_session()
 
     checks = [
-        ("Database",
-         "SELECT COUNT(*) FROM DQ_ACCELERATOR.INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'ASSESSMENTS'"),
-        ("Schema ASSESSMENTS",
-         "SELECT COUNT(*) FROM DQ_ACCELERATOR.INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'ASSESSMENTS'"),
-        ("Schema UNSTRUCTURED",
-         "SELECT COUNT(*) FROM DQ_ACCELERATOR.INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'UNSTRUCTURED'"),
-        ("Table ASSESSMENT_RESULTS",
-         "SELECT COUNT(*) FROM DQ_ACCELERATOR.ASSESSMENTS.ASSESSMENT_RESULTS LIMIT 1"),
+        ("Database",  "SELECT COUNT(*) FROM INFORMATION_SCHEMA.DATABASES WHERE DATABASE_NAME = 'DQ_ACCELERATOR'"),
+        ("Schema ASSESSMENTS", "SELECT COUNT(*) FROM DQ_ACCELERATOR.INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'ASSESSMENTS'"),
+        ("Schema UNSTRUCTURED", "SELECT COUNT(*) FROM DQ_ACCELERATOR.INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'UNSTRUCTURED'"),
+        ("Table ASSESSMENT_RESULTS", "SELECT COUNT(*) FROM DQ_ACCELERATOR.INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'ASSESSMENT_RESULTS'"),
     ]
 
     for label, sql in checks:
         try:
             count = session.sql(sql).collect()[0][0]
-            if count >= 0:
+            if count > 0:
                 st.markdown(f"🟢 {label}")
             else:
                 st.markdown(f"🔴 {label} — not found. Run `snowflake/setup.sql` in Snowsight.")

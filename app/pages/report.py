@@ -54,6 +54,9 @@ def render():
     if len(all_results) > 1:
         _render_combined_summary(all_results)
 
+    # ── Snowflake history ────────────────────────────────────────────────────
+    _render_snowflake_history()
+
     # ── Export ───────────────────────────────────────────────────────────────
     st.markdown("## Export")
     col_csv, col_excel, col_json = st.columns(3)
@@ -285,3 +288,43 @@ def _build_summary_json(results: list[AssessmentResult]) -> dict:
             for r in results
         ],
     }
+
+
+def _render_snowflake_history():
+    """Show recent assessment history from Snowflake if connected."""
+    try:
+        from engine.snowflake.persist import get_recent_results, _is_configured
+        if not _is_configured():
+            return
+        st.markdown("## Assessment history")
+        st.caption("Recent runs stored in Snowflake — DQ_ACCELERATOR.ASSESSMENTS.ASSESSMENT_RESULTS")
+        results = get_recent_results(limit=10)
+        if not results:
+            st.info("No assessment history yet. Run an assessment to populate.")
+            return
+        tier_icon = {"AI Ready": "🟢", "Moderate": "🟡", "High Risk": "🔴"}
+        html = '<table style="width:100%;border-collapse:collapse;font-family:Source Sans Pro,sans-serif;font-size:14px;">'
+        html += '<tr style="border-bottom:2px solid #E6E3F3;">'
+        for col in ["Source", "Track", "Score", "Tier", "Critical", "Warnings", "Run time"]:
+            html += f'<th style="text-align:left;padding:8px 12px;font-size:12px;font-weight:600;color:rgba(0,0,0,0.60);text-transform:uppercase;letter-spacing:0.5px;">{col}</th>'
+        html += '</tr>'
+        for i, r in enumerate(results):
+            bg = "#F2F1F9" if i % 2 == 0 else "#FFFFFF"
+            score = r["ai_readiness_index"] or 0
+            sc = "#128354" if score >= 71 else "#854F0B" if score >= 41 else "#B00020"
+            icon = tier_icon.get(r["maturity_tier"], "⚪")
+            ts = str(r["run_timestamp"])[:16].replace("T", " ")
+            html += f'<tr style="background:{bg};border-bottom:1px solid rgba(0,0,0,0.06);">'
+            html += f'<td style="padding:8px 12px;font-weight:600;">{r["source_name"]}</td>'
+            html += f'<td style="padding:8px 12px;color:rgba(0,0,0,0.60);">{r["track"].title()}</td>'
+            html += f'<td style="padding:8px 12px;font-weight:700;color:{sc};">{score:.0f}/100</td>'
+            html += f'<td style="padding:8px 12px;">{icon} {r["maturity_tier"]}</td>'
+            html += f'<td style="padding:8px 12px;color:#B00020;font-weight:600;">{r["critical_count"]}</td>'
+            html += f'<td style="padding:8px 12px;color:#854F0B;font-weight:600;">{r["warning_count"]}</td>'
+            html += f'<td style="padding:8px 12px;color:rgba(0,0,0,0.50);font-size:12px;">{ts}</td>'
+            html += '</tr>'
+        html += '</table>'
+        st.markdown(html, unsafe_allow_html=True)
+        st.divider()
+    except Exception:
+        pass  # Never block report for history failures

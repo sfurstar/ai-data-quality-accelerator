@@ -103,6 +103,17 @@ def _run_assessment(df: pd.DataFrame, source_name: str):
     # ── Save to session for Report page ─────────────────────────────────────
     st.session_state["structured_result"] = result
 
+    # ── Persist to Snowflake if configured ───────────────────────────────────
+    try:
+        from engine.snowflake.persist import save_result
+        from engine.snowflake.connection import get_session
+        get_session.cache_clear()
+        sf_result = save_result(result)
+        if sf_result["status"] == "saved":
+            st.caption(f"✅ Results saved to Snowflake (ID: {sf_result['assessment_id'][:8]}...)")
+    except Exception as e:
+        st.caption(f"⚠️ Snowflake save failed: {e}")
+
 
 def _load_sample_dataset() -> tuple[pd.DataFrame | None, str]:
     """

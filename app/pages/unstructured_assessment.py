@@ -119,6 +119,15 @@ def _assess_document(file_obj, standards: list[str], use_llm: bool) -> Assessmen
             result.metadata["llm"] = llm_result
             result.metadata["coverage"] = get_coverage_summary(text, standards)
 
+            # ── Persist to Snowflake if configured ───────────────────────────
+            try:
+                from engine.snowflake.persist import save_result
+                sf_result = save_result(result)
+                if sf_result["status"] == "saved":
+                    st.caption(f"✅ Saved to Snowflake (ID: {sf_result['assessment_id'][:8]}...)")
+            except Exception:
+                pass  # Never block UI for persistence failures
+
             return result
 
         except Exception as e:

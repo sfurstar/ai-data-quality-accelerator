@@ -9,6 +9,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from dotenv import load_dotenv
 load_dotenv()
 
+# Clear cached Snowflake session so it always picks up fresh env vars on startup
+try:
+    from engine.snowflake.connection import get_session
+    get_session.cache_clear()
+except Exception:
+    pass
+
 import streamlit as st
 from app.theme import apply as apply_theme, sidebar_logo, page_header
 
