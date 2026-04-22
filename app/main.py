@@ -6,6 +6,9 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from dotenv import load_dotenv
+load_dotenv()
+
 import streamlit as st
 from app.theme import apply as apply_theme, sidebar_logo, page_header
 
@@ -70,6 +73,7 @@ with st.sidebar:
             "📋 Structured Assessment",
             "📄 Unstructured Assessment",
             "📈 Report",
+            "❄️ Snowflake Setup",
         ],
         label_visibility="collapsed",
     )
@@ -90,3 +94,6 @@ elif page == "📄 Unstructured Assessment":
 elif page == "📈 Report":
     from app.pages import report
     report.render()
+elif page == "❄️ Snowflake Setup":
+    from app.pages import snowflake_setup
+    snowflake_setup.render()
