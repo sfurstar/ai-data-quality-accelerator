@@ -74,8 +74,12 @@ def render():
         options=_AVAILABLE_STANDARDS,
         default=_AVAILABLE_STANDARDS,
     )
-    use_llm = False  # Phase 2: enable when Snowflake Cortex is configured
-    st.caption("AI-powered gap analysis (Cortex COMPLETE) will be enabled in Phase 2 — Snowflake integration.")
+    # Enable Cortex LLM analysis if Snowflake is configured
+    use_llm = bool(os.environ.get("SNOWFLAKE_ACCOUNT"))
+    if use_llm:
+        st.caption("✅ AI-powered gap analysis enabled — Snowflake Cortex COMPLETE (mistral-large2)")
+    else:
+        st.caption("AI-powered gap analysis (Cortex COMPLETE) will be enabled when Snowflake is configured.")
 
     # ── Run ──────────────────────────────────────────────────────────────────
     if st.button("▶ Run Assessment", type="primary", use_container_width=True):
@@ -167,22 +171,27 @@ def _render_results(results: list[tuple[str, AssessmentResult]]):
             st.markdown("#### Standard coverage")
             _render_coverage_table(meta["coverage"])
 
-        # LLM analysis
+        # Cortex LLM analysis
         if "llm" in meta and not meta["llm"].get("error"):
             llm = meta["llm"]
+            model = llm.get("model", "cortex")
             if llm.get("summary"):
-                st.markdown("#### AI gap analysis")
+                st.markdown(f"#### AI gap analysis ✨ *powered by {model}*")
                 st.info(llm["summary"])
 
             if llm.get("gaps"):
-                with st.expander("Identified gaps (AI-powered)", expanded=True):
+                with st.expander("Identified gaps (Cortex AI)", expanded=True):
                     for gap in llm["gaps"]:
                         st.markdown(f"- {gap}")
 
             if llm.get("recommendations"):
-                with st.expander("Recommended actions (AI-powered)", expanded=True):
+                with st.expander("Recommended actions (Cortex AI)", expanded=True):
                     for i, rec in enumerate(llm["recommendations"], 1):
                         st.markdown(f"**{i}.** {rec}")
+        elif "llm" in meta and meta["llm"].get("error"):
+            err = meta["llm"]["error"]
+            if "not configured" not in err.lower():
+                st.caption(f"⚠️ Cortex analysis: {err}")
 
         # Findings table
         st.markdown("#### Rule-based findings")
