@@ -168,7 +168,7 @@ def _render_results(results: list[tuple[str, AssessmentResult]]):
 
         # Findings table
         st.markdown("#### Rule-based findings")
-        render_findings_table(result.all_findings)
+        render_findings_table(result.all_findings, key=name)
         st.divider()
 
 

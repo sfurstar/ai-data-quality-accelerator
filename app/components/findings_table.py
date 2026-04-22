@@ -26,7 +26,7 @@ _DIM_LABELS = {
 }
 
 
-def render_findings_table(findings: list[Finding]):
+def render_findings_table(findings: list[Finding], key: str = ""):
     """Render a filterable findings table with expandable detail rows."""
 
     if not findings:
@@ -44,6 +44,7 @@ def render_findings_table(findings: list[Finding]):
             options=["Critical", "Warning", "Info"],
             default=["Critical", "Warning"],
             label_visibility="collapsed",
+            key=f"sev_{key}",
         )
 
     with col_dim:
@@ -53,10 +54,12 @@ def render_findings_table(findings: list[Finding]):
             options=available_dims,
             default=available_dims,
             label_visibility="collapsed",
+            key=f"dim_{key}",
         )
 
     with col_search:
-        search = st.text_input("Search findings", placeholder="Search title or description...", label_visibility="collapsed")
+        search = st.text_input("Search findings", placeholder="Search title or description...",
+                           label_visibility="collapsed", key=f"search_{key}")
 
     # ── Filter logic ─────────────────────────────────────────────────────────
     sev_map = {"Critical": Severity.CRITICAL, "Warning": Severity.WARNING, "Info": Severity.INFO}
