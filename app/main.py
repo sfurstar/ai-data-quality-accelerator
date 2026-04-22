@@ -9,6 +9,24 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from dotenv import load_dotenv
 load_dotenv()
 
+# ZScaler SSL fix — appends ZScaler cert to requests bundle without
+# touching Snowflake connector's own SSL context
+import os as _os
+_zscaler = _os.environ.get(
+    "ZSCALER_CERT_PATH",
+    "/Users/steven.furst/Documents/certs/Zscaler_Root_CA.pem"
+)
+if _os.path.exists(_zscaler):
+    try:
+        import certifi, tempfile, shutil
+        _combined = tempfile.NamedTemporaryFile(delete=False, suffix=".pem")
+        shutil.copyfileobj(open(certifi.where(), "rb"), _combined)
+        shutil.copyfileobj(open(_zscaler, "rb"), _combined)
+        _combined.flush()
+        _os.environ["REQUESTS_CA_BUNDLE"] = _combined.name
+    except Exception:
+        pass
+
 # Clear cached Snowflake session so it always picks up fresh env vars on startup
 try:
     from engine.snowflake.connection import get_session

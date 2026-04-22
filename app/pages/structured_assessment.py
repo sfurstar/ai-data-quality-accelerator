@@ -5,6 +5,7 @@ Structured data assessment page — CSV upload + quality checks.
 from __future__ import annotations
 
 import io
+import os
 import pandas as pd
 import streamlit as st
 
@@ -19,14 +20,18 @@ from app.theme import page_header
 def render():
     page_header("Structured Data Assessment", "Upload a dataset and assess it across five quality dimensions.")
     st.markdown(
-        "Upload a CSV file to assess data quality, governance gaps, and AI readiness. "
-        "Use the sample NYC 311 dataset below if you don't have one ready."
+        "Upload a CSV file, connect to a Snowflake table, or use the sample NYC 311 dataset."
     )
 
     # ── Data source selection ────────────────────────────────────────────────
+    _sf_available = bool(os.environ.get("SNOWFLAKE_ACCOUNT"))
+    source_options = ["Upload CSV", "Use sample dataset (NYC 311 Service Requests)"]
+    if _sf_available:
+        source_options.append("❄️ Snowflake table")
+
     source_option = st.radio(
         "Data source",
-        ["Upload CSV", "Use sample dataset (NYC 311 Service Requests)"],
+        source_options,
         horizontal=True,
     )
 
@@ -38,13 +43,15 @@ def render():
         if uploaded:
             df = pd.read_csv(uploaded, low_memory=False)
             source_name = uploaded.name
+    elif source_option == "❄️ Snowflake table":
+        df, source_name = _load_snowflake_table()
     else:
         df, source_name = _load_sample_dataset()
         if df is not None:
             st.success(f"✅ Sample dataset loaded: {source_name} ({len(df):,} rows, {len(df.columns)} columns)")
 
     if df is None:
-        st.info("👆 Upload a CSV file or select the sample dataset to begin.")
+        st.info("👆 Upload a CSV file, select the sample dataset, or choose a Snowflake table to begin.")
         return
 
     # ── Preview ──────────────────────────────────────────────────────────────
@@ -178,3 +185,67 @@ def _load_sample_dataset() -> tuple[pd.DataFrame | None, str]:
     df.loc[df["reference_id"] == "", "reference_id"] = None
 
     return df, "synthetic_gov_311.csv (demo)"
+
+
+def _load_snowflake_table() -> tuple[pd.DataFrame | None, str]:
+    """Load data from a user-selected Snowflake table."""
+    try:
+        from engine.snowflake.data_source import list_tables, fetch_sample, get_row_count
+
+        with st.spinner("Loading available Snowflake tables..."):
+            tables = list_tables()
+
+        if not tables:
+            st.warning("No tables found. Run `snowflake/setup.sql` to create the required objects.")
+            return None, ""
+
+        # Build display options
+        options = {f"{t['schema']}.{t['name']} ({t['row_count']:,} rows)": t["full_name"]
+                   for t in tables}
+
+        selected_label = st.selectbox(
+            "Select table",
+            options=list(options.keys()),
+            index=0,
+        )
+        selected_table = options[selected_label]
+
+        col_limit, col_load = st.columns([2, 1])
+        with col_limit:
+            limit = st.number_input(
+                "Max rows to assess",
+                min_value=100,
+                max_value=100000,
+                value=5000,
+                step=1000,
+                help="Larger samples give more accurate results but take longer to load.",
+            )
+        with col_load:
+            st.markdown("<div style='margin-top:28px'></div>", unsafe_allow_html=True)
+            load_clicked = st.button("Load table", use_container_width=True)
+
+        # Clear cached df if user switches tables
+        if st.session_state.get("sf_table_name") != selected_table:
+            st.session_state.pop("sf_table_df", None)
+            st.session_state.pop("sf_table_name", None)
+
+        if load_clicked:
+            with st.spinner(f"Fetching {limit:,} rows from {selected_table}..."):
+                df = fetch_sample(selected_table, limit=int(limit))
+                actual_rows = get_row_count(selected_table)
+            st.session_state["sf_table_df"] = df
+            st.session_state["sf_table_name"] = selected_table
+            st.success(
+                f"✅ Loaded {len(df):,} rows from `{selected_table}` "
+                f"(table has {actual_rows:,} total rows, {len(df.columns)} columns)"
+            )
+
+        # Return from session state if already loaded
+        if "sf_table_df" in st.session_state:
+            return st.session_state["sf_table_df"], st.session_state["sf_table_name"]
+
+        return None, ""
+
+    except Exception as e:
+        st.error(f"❌ Snowflake error: {e}")
+        return None, ""
