@@ -11,6 +11,7 @@ import pandas as pd
 import streamlit as st
 
 from engine import AssessmentResult, Severity
+from app.theme import page_header
 
 
 def render():
@@ -122,21 +123,56 @@ def _render_result_summary(result: AssessmentResult):
         })
 
     if rows:
-        df = pd.DataFrame(rows)
-        st.dataframe(df, use_container_width=True, hide_index=True)
+        def _sc(s):
+            v = int(s)
+            return "#B00020" if v < 41 else "#854F0B" if v < 71 else "#128354"
+        html = '<table style="width:100%;border-collapse:collapse;font-family:Source Sans Pro,sans-serif;font-size:14px;">'
+        html += '<tr style="border-bottom:2px solid #E6E3F3;">'
+        for col in ["Dimension", "Score", "Critical", "Warnings", "Findings"]:
+            html += f'<th style="text-align:left;padding:8px 12px;font-weight:600;color:rgba(0,0,0,0.60);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">{col}</th>'
+        html += '</tr>'
+        for i, row in enumerate(rows):
+            bg = "#F2F1F9" if i % 2 == 0 else "#FFFFFF"
+            html += f'<tr style="background:{bg};border-bottom:1px solid rgba(0,0,0,0.06);">'
+            html += f'<td style="padding:8px 12px;font-weight:600;">{row["Dimension"]}</td>'
+            html += f'<td style="padding:8px 12px;font-weight:700;color:{_sc(row["Score"])};">{row["Score"]}</td>'
+            html += f'<td style="padding:8px 12px;color:#B00020;font-weight:600;">{row["Critical"] or "—"}</td>'
+            html += f'<td style="padding:8px 12px;color:#854F0B;font-weight:600;">{row["Warnings"] or "—"}</td>'
+            html += f'<td style="padding:8px 12px;color:rgba(0,0,0,0.60);">{row["Findings"]}</td>'
+            html += '</tr>'
+        html += '</table>'
+        st.markdown(html, unsafe_allow_html=True)
 
 
 def _render_mini_coverage(coverage: dict):
-    rows = [
-        {
-            "Standard": k,
+    rows = []
+    for k, v in coverage.items():
+        icon = "🟢" if v["score"] >= 70 else "🟡" if v["score"] >= 40 else "🔴"
+        rows.append({
+            "Standard": f"{icon} {k}",
+            "Full name": v["full_name"],
             "Passed": v["passed"],
             "Failed": v["failed"],
             "Score": f"{v['score']}%",
-        }
-        for k, v in coverage.items()
-    ]
-    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+        })
+    html = '<table style="width:100%;border-collapse:collapse;font-family:Source Sans Pro,sans-serif;font-size:14px;">'
+    html += '<tr style="border-bottom:2px solid #E6E3F3;">'
+    for col in ["Standard", "Full name", "Passed", "Failed", "Score"]:
+        html += f'<th style="text-align:left;padding:8px 12px;font-weight:600;color:rgba(0,0,0,0.60);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">{col}</th>'
+    html += '</tr>'
+    for i, row in enumerate(rows):
+        bg = "#F2F1F9" if i % 2 == 0 else "#FFFFFF"
+        sv = int(row["Score"].replace("%", ""))
+        sc = "#128354" if sv >= 70 else "#854F0B" if sv >= 40 else "#B00020"
+        html += f'<tr style="background:{bg};border-bottom:1px solid rgba(0,0,0,0.06);">'
+        html += f'<td style="padding:8px 12px;font-weight:600;">{row["Standard"]}</td>'
+        html += f'<td style="padding:8px 12px;color:rgba(0,0,0,0.70);">{row["Full name"]}</td>'
+        html += f'<td style="padding:8px 12px;color:#128354;font-weight:600;">{row["Passed"]}</td>'
+        html += f'<td style="padding:8px 12px;color:#B00020;font-weight:600;">{row["Failed"]}</td>'
+        html += f'<td style="padding:8px 12px;font-weight:700;color:{sc};">{row["Score"]}</td>'
+        html += '</tr>'
+    html += '</table>'
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def _render_combined_summary(results: list[AssessmentResult]):
