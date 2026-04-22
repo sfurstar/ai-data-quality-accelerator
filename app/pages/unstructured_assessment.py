@@ -5,6 +5,7 @@ PDF compliance document assessment page.
 from __future__ import annotations
 
 import io
+import os
 from pathlib import Path
 
 import streamlit as st
@@ -26,14 +27,18 @@ _AVAILABLE_STANDARDS = ["HIPAA", "GDPR", "FedRAMP", "GOVERNANCE"]
 def render():
     page_header("Unstructured Document Assessment", "Scan compliance and policy documents against HIPAA, GDPR, FedRAMP, and governance standards.")
     st.markdown(
-        "Upload one or more policy or compliance documents (PDF) to scan for "
-        "regulatory gaps across HIPAA, GDPR, FedRAMP, and data governance best practices."
+        "Upload PDFs, load from Snowflake S3 stage, or use the sample documents."
     )
 
     # ── Source selection ─────────────────────────────────────────────────────
+    _sf_available = bool(os.environ.get("SNOWFLAKE_ACCOUNT"))
+    source_options = ["Upload PDF(s)", "Use sample documents"]
+    if _sf_available:
+        source_options.append("❄️ Snowflake S3 stage")
+
     source_option = st.radio(
         "Document source",
-        ["Upload PDF(s)", "Use sample documents"],
+        source_options,
         horizontal=True,
     )
 
@@ -49,13 +54,17 @@ def render():
         )
         if files:
             uploaded_files = files
+    elif source_option == "❄️ Snowflake S3 stage":
+        uploaded_files, source_label = _load_stage_docs()
+        if uploaded_files:
+            st.success(f"✅ {len(uploaded_files)} document(s) loaded from S3 stage")
     else:
         uploaded_files, source_label = _load_sample_docs()
         if uploaded_files:
             st.success(f"✅ {len(uploaded_files)} sample document(s) loaded")
 
     if not uploaded_files:
-        st.info("👆 Upload PDF documents or select sample documents to begin.")
+        st.info("👆 Upload PDF documents, select sample documents, or load from S3 stage.")
         _render_sample_info()
         return
 
@@ -243,3 +252,62 @@ def _load_sample_docs():
             file_objs.append(buf)
 
     return file_objs, f"{len(file_objs)} sample documents"
+
+
+def _load_stage_docs():
+    """Load PDF documents from Snowflake S3 external stage."""
+    try:
+        from engine.snowflake.stage_source import list_stage_files, download_file
+
+        with st.spinner("Listing files in S3 stage..."):
+            files = list_stage_files()
+
+        if not files:
+            st.warning(
+                "No PDF files found in the S3 stage. "
+                "Upload PDFs to `s3://dq-accelerator-897423702380-us-west-2/dq-docs/` "
+                "then run `ALTER STAGE PDF_S3_STAGE REFRESH` in Snowsight."
+            )
+            return [], ""
+
+        # Show file selector
+        file_options = {
+            f"{f['filename']} ({f['size_kb']} KB)": f
+            for f in files
+        }
+        selected_labels = st.multiselect(
+            "Select documents from S3 stage",
+            options=list(file_options.keys()),
+            default=list(file_options.keys())[:3],  # default first 3
+        )
+
+        if not selected_labels:
+            return [], ""
+
+        load_clicked = st.button("Load from S3", use_container_width=False)
+
+        if load_clicked or st.session_state.get("stage_files_loaded"):
+            file_objs = []
+            with st.spinner(f"Downloading {len(selected_labels)} file(s) from S3..."):
+                for label in selected_labels:
+                    f = file_options[label]
+                    try:
+                        buf = download_file(f["filename"])
+                        file_objs.append(buf)
+                    except Exception as e:
+                        st.warning(f"⚠️ Could not load {f['filename']}: {e}")
+
+            if file_objs:
+                st.session_state["stage_files_loaded"] = True
+                st.session_state["stage_file_objs"] = file_objs
+                return file_objs, f"{len(file_objs)} file(s) from S3 stage"
+
+        # Return cached if already loaded
+        if st.session_state.get("stage_files_loaded"):
+            return st.session_state.get("stage_file_objs", []), "S3 stage"
+
+        return [], ""
+
+    except Exception as e:
+        st.error(f"❌ S3 stage error: {e}")
+        return [], ""
