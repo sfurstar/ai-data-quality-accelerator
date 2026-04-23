@@ -11,6 +11,7 @@ load_dotenv()
 
 # ZScaler SSL fix — appends ZScaler cert to requests bundle without
 # touching Snowflake connector's own SSL context
+import os
 import os as _os
 _zscaler = _os.environ.get("ZSCALER_CERT_PATH", "")
 if _os.path.exists(_zscaler):
@@ -101,8 +102,12 @@ with st.sidebar:
     )
 
     st.divider()
-    st.caption("Phase 1 — Local Prototype")
-    st.caption("Phase 2 — Snowflake / Cortex")
+    sf_active = bool(os.environ.get("SNOWFLAKE_ACCOUNT"))
+    if sf_active:
+        st.caption("✅ Phase 2 — Snowflake / Cortex active")
+    else:
+        st.caption("Phase 1 — Local Prototype")
+        st.caption("Phase 2 — Snowflake / Cortex")
 
 # ── Page routing ──────────────────────────────────────────────────────────────
 if page == "🏠 Home":

@@ -111,10 +111,8 @@ h1 {
     font-size: 32px !important;
     font-weight: 700 !important;
     color: var(--eds-color-primary) !important;
-    border-bottom: 3px solid;
-    border-image: var(--eds-gradient-primary) 1;
-    padding-bottom: 8px;
-    margin-bottom: 16px;
+    margin-bottom: 0px !important;
+    padding-bottom: 4px !important;
 }
 
 h2 {
@@ -356,11 +354,16 @@ def page_header(title: str, subtitle: str = ""):
     """
     Render an EDS-styled page header with the gradient underline.
     """
-    st.markdown(f"# {title}")
+    st.markdown(
+        f"<h1 style='margin-bottom:4px;'>{title}</h1>"
+        f"<div style='height:4px;background:linear-gradient(90deg,#E31937 0%,#A82465 60%,#5236AB 100%);"
+        f"border-radius:0;margin-bottom:0;'></div>",
+        unsafe_allow_html=True,
+    )
     if subtitle:
         st.markdown(
-            f"<p style='font-family:var(--eds-font-family); font-size:16px; "
-            f"color:rgba(0,0,0,0.60); margin-top:-8px; margin-bottom:16px;'>"
+            f"<p style='font-family:var(--eds-font-family);font-size:16px;"
+            f"color:rgba(0,0,0,0.60);margin-top:16px;margin-bottom:20px;'>"
             f"{subtitle}</p>",
             unsafe_allow_html=True,
         )

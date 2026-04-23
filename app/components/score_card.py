@@ -41,15 +41,15 @@ def render_score_card(result: AssessmentResult):
     # ── Key metrics row — native st.metric (no HTML rendering issues) ────────
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
-        st.metric("AI-Readiness Index", f"{result.ai_readiness_index:.0f} / 100")
+        st.metric("Index", f"{result.ai_readiness_index:.0f} / 100")
     with col2:
-        st.metric("Maturity Tier", result.maturity_tier)
+        st.metric("Tier", result.maturity_tier)
     with col3:
         st.metric("Critical", result.critical_count)
     with col4:
         st.metric("Warnings", result.warning_count)
     with col5:
-        st.metric("Informational", info_count)
+        st.metric("Info", info_count)
 
     # Maturity badge + summary
     st.markdown(maturity_badge(result.maturity_tier, result.ai_readiness_index),
