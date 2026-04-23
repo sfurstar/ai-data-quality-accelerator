@@ -13,7 +13,10 @@ load_dotenv()
 # touching Snowflake connector's own SSL context
 import os
 import os as _os
-_zscaler = _os.environ.get("ZSCALER_CERT_PATH", "")
+_zscaler = _os.environ.get(
+    "ZSCALER_CERT_PATH",
+    "/Users/steven.furst/Documents/certs/Zscaler_Root_CA.pem"
+)
 if _os.path.exists(_zscaler):
     try:
         import certifi, tempfile, shutil
