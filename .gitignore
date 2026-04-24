@@ -47,3 +47,6 @@ reports/
 # Jupyter (if used for exploration)
 .ipynb_checkpoints/
 *.ipynb
+bootstrap.py
+regen_bootstrap.py
+dq_accelerator_snowflake.zip
